@@ -61,25 +61,32 @@ getChildren(Parent,[]):-
 	not(descendant(Parent,_)).
 
 % 1 parent, 1 child
-getChildren(Parent,AllChildren):-
+getChildren(Parent,[Child|GrandChildren]):-
 	bagof(Y,descendant(Parent,Y),[Child]),
-	print(Parent),
-	getChildren(Child,GrandChildren),
-	append(Child,GrandChildren,AllChildren).
+	getChildren(Child,GrandChildren).
 
 % 1 parent, multiple children
-getChildren(Parent,AllChildren):-
-	print('multchild\n'),
-	print(Parent),
-	bagof(Y,descendant(Parent,Y),[ChildH|ChildT]),
-	getChildren(ChildH,GrandHChild),
-	getChildren(ChildT,GrandTChild),
-	append([ChildH],GrandHChild,Htree),
-	append(ChildT,GrandTChild,Ttree),
-	append(Htree,Ttree,AllChildren).
+getChildren(Parent, AllChildren):-
+	bagof(Y,descendant(Parent,Y),[Head|Tail]),
+	getChildren(Head,HeadChildren),
+	getChildren(Tail,TailChildren),
+	append(HeadChildren,TailChildren,AllChildren).
 
 % multiple parents, multiple children
+getChildren([HParent|TParent],AllChildren):-
+	bagof(Y,descendant(HParent,Y),[Head|Tail]),
+	getChildren(TParent,TPChildren),
+	getChildren(Head,HeadGrandChildren),
+	getChildren(Tail,TailGrandChildren),
+	append(TPChildren,HeadGrandChildren,X),
+	append(X,TailGrandChildren,AllChildren).
+
 % multiple parents, 1 child
+getChildren([HParent|TParent],AllChildren):-
+	bagof(Y,descendant(HParent,Y),Children),
+	getChildren(TParent,TPChildren),
+	getChildren(Children,GrandChildren),
+	append(TPChildren,GrandChildren,AllChildren).
 
 % get all relations of given class.
 % base case
