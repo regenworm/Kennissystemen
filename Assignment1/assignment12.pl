@@ -57,7 +57,11 @@ getAncestors(Parent, [Ancestor|AncestorsT]):-
 
 % get all Children of given class
 % base case
+getChildren([Parent],[]):-
+	not(descendant(Parent,_)).
+
 getChildren(Parent,[]):-
+	not(append([_],[_],Parent)),
 	not(descendant(Parent,_)).
 
 % 1 parent, 1 child
@@ -66,6 +70,18 @@ getChildren(Parent,AllChildren):-
 	print(Parent),
 	getChildren(Child,GrandChildren),
 	append(Child,GrandChildren,AllChildren).
+
+% multiple parents, multiple children
+% hier zit een fout
+getChildren([HP|TP],AllChildren):-
+	bagof(Y,descendant(HP,Y),[ChildH|ChildT]),
+	getChildren(ChildH,GrandHChild),
+	getChildren(ChildT,GrandTChild),
+	getChildren(TP,TPChild),
+	append([ChildH],GrandHChild,Htree),
+	append(ChildT,GrandTChild,Ttree),
+	append(Htree,Ttree,HChildren),
+	append([TPChild],HChildren,AllChildren).
 
 % 1 parent, multiple children
 getChildren(Parent,AllChildren):-
@@ -78,7 +94,6 @@ getChildren(Parent,AllChildren):-
 	append(ChildT,GrandTChild,Ttree),
 	append(Htree,Ttree,AllChildren).
 
-% multiple parents, multiple children
 % multiple parents, 1 child
 
 % get all relations of given class.
