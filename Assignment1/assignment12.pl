@@ -99,15 +99,12 @@ getChildren(Parent,AllChildren):-
 % get all relations of given class.
 % base case
 getRelations(Parent, [], Relations):-
-	bagof(Y,relatie(Y,Parent,_,_),Relations),
-	print(Relations),
-	print('\n').
+	bagof(Y,relatie(Y,Parent,_,_),Relations);
+	not(bagof(Y,relatie(Y,Parent,_,_),Relations)).
 
 getRelations(Parent,[H|T],AllRelations):-
+	bagof(Y,relatie(Y,Parent,_,_),AllRelations);
 	getRelations(H,T,Relations2),
-	bagof(Y,relatie(Y,Parent,_,_),Relations),
-	print(Relations),
-	print('\n'),
 	append(Relations, Relations2, AllRelations).
 
 show(Parent):-
@@ -116,5 +113,7 @@ show(Parent):-
 	printDescent(Ancestors,Parent),
 	print('Children:\n'),
 	getChildren(Parent,_),
-	getRelations(Parent,Ancestors,_).
+	getRelations(Parent,Ancestors,Relations),
+	print('Relations:\n'),
+	print(Relations).
 
