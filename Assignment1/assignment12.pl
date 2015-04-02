@@ -104,8 +104,7 @@ getRelations(Parent, [], Relations):-
 
 getRelations(Parent,[H|T],AllRelations):-
 	bagof(Y,relatie(Y,Parent,_,_),AllRelations);
-	getRelations(H,T,Relations2),
-	append(Relations, Relations2, AllRelations).
+	getRelations(H,T,AllRelations).
 
 show(Parent):-
 	print('Ancestors:\n'),
