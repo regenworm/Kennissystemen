@@ -93,17 +93,11 @@ getAncestors(Parent, [Ancestor|AncestorsT]):-
 
 % get all Children of given class
 % base case
-getChildren([Parent],[]):-
-	not(descendant(Parent,_)).
-
-getChildren(Parent,[]):-
-	not(append([_],[_],Parent)),
-	not(descendant(Parent,_)).
 
 % 1 parent, 1 child
 getChildren(Parent,AllChildren):-
 	bagof(Y,descendant(Parent,Y),[Child]),
-	%print(Parent),
+	print(Parent),
 	getChildren(Child,GrandChildren),
 	append(Child,GrandChildren,AllChildren).
 
@@ -111,24 +105,24 @@ getChildren(Parent,AllChildren):-
 % hier zit een fout
 getChildren([HP|TP],AllChildren):-
 	bagof(Y,descendant(HP,Y),[ChildH|ChildT]),
-	getChildren(ChildH,GrandHChild),
-	getChildren(ChildT,GrandTChild),
-	getChildren(TP,TPChild),
-	append([ChildH],GrandHChild,Htree),
-	append(ChildT,GrandTChild,Ttree),
-	append(Htree,Ttree,HChildren),
-	append([TPChild],HChildren,AllChildren).
+	getChildren(TP, TPChild),
+	append([ChildH|ChildT],TPChild, AllChildren).
 
 % 1 parent, multiple children
 getChildren(Parent,AllChildren):-
-	%print('multchild\n'),
-	%print(Parent),
 	bagof(Y,descendant(Parent,Y),[ChildH|ChildT]),
 	getChildren(ChildH,GrandHChild),
 	getChildren(ChildT,GrandTChild),
 	append([ChildH],GrandHChild,Htree),
 	append(ChildT,GrandTChild,Ttree),
-	append(Htree,Ttree,AllChildren).
+	append(Htree,Ttree, AllChildren).
+	
+getChildren([Parent],[]):-
+	not(descendant(Parent,_)).
+
+getChildren(Parent,[]):-
+	not(descendant(Parent,_)).
+	% flatten(ToFlatten, ).
 
 % multiple parents, 1 child
 
@@ -153,9 +147,6 @@ show(Parent):-
 	getRelations(Parent,Ancestors,Relations),
 	print('Relations:\n'),
 	print(Relations).
-
-
-
 
 % add class
 % add(class, relaties, ancestor)
