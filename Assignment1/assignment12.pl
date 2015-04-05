@@ -93,42 +93,29 @@ getAncestors(Parent, [Ancestor|AncestorsT]):-
 
 % get all Children of given class
 % base case
-getChildren([Parent],[]):-
-	not(descendant(Parent,_)).
-
 getChildren(Parent,[]):-
-	not(append([_],[_],Parent)),
+	not(is_list(Parent)),
 	not(descendant(Parent,_)).
 
-% 1 parent, 1 child
+% 1 parent
 getChildren(Parent,AllChildren):-
-	bagof(Y,descendant(Parent,Y),[Child]),
-	%print(Parent),
-	getChildren(Child,GrandChildren),
-	append(Child,GrandChildren,AllChildren).
+	not(is_list(Parent)),
+	findall(Y,descendant(Parent,Y),Children),
+	print(Children),
+	getChildren(Children,GrandChildren),
+	append(Children,GrandChildren,AllChildren).
+
+% multiple parents
+getChildren([HP|TP],AllChildren):-
+	findall(Y,descendant(HP,Y),HChildren),
+	append(TP,HChildren,Looklist),
+	getChildren(Looklist,MoreChildren),
+	append(HChildren,MoreChildren,AllChildren).
 
 % multiple parents, multiple children
 % hier zit een fout
-getChildren([HP|TP],AllChildren):-
-	bagof(Y,descendant(HP,Y),[ChildH|ChildT]),
-	getChildren(ChildH,GrandHChild),
-	getChildren(ChildT,GrandTChild),
-	getChildren(TP,TPChild),
-	append([ChildH],GrandHChild,Htree),
-	append(ChildT,GrandTChild,Ttree),
-	append(Htree,Ttree,HChildren),
-	append([TPChild],HChildren,AllChildren).
 
 % 1 parent, multiple children
-getChildren(Parent,AllChildren):-
-	%print('multchild\n'),
-	%print(Parent),
-	bagof(Y,descendant(Parent,Y),[ChildH|ChildT]),
-	getChildren(ChildH,GrandHChild),
-	getChildren(ChildT,GrandTChild),
-	append([ChildH],GrandHChild,Htree),
-	append(ChildT,GrandTChild,Ttree),
-	append(Htree,Ttree,AllChildren).
 
 % multiple parents, 1 child
 
@@ -155,7 +142,21 @@ show(Parent):-
 	print(Relations).
 
 
+% get all ancestors
+% getAllAnc(Classes,)
+getAllAnc([], []).
+getAllAnc([H|T],AllAncestors):-
+	getAllAnc(T,RestAncestors),
+	getAncestors(H,Ancestor),
+	append(Ancestor,RestAncestors,AllAncestors).
 
+
+% getAllRel(Relation,PossibleClasses,Ans)
+
+getAllRel(Relation,Family):-
+	findall(Y,relatie(Y,Relation,_),AllParents),
+	getChildren(AllParents,Children),
+	append(AllParents,Children,Family).
 
 % add class
 % add(class, relaties, ancestor)
@@ -174,6 +175,7 @@ add(Class,[H|T],Ancestor):-
 checkAllRel([],Poss,Poss).
 
 checkAllRel([H|T],Possible1,Ans):-
+	% get all classes Y with feature H
 	bagof(Y,relatie(Y,H,_),Possible2),
 	getList(Possible1,Possible2,ActualPossible),
 	checkAllRel(T,ActualPossible,Ans).
@@ -193,7 +195,7 @@ getList(Possible1,[H|T],[H|PossibleClasses]):-
 	memberchk(H,Possible1).
 
 % h not a member
-getList(Possible1,[H|T],AllClasses)
+getList(Possible1,[H|T],AllClasses):-
 	getList(Possible1,T,AllClasses),
 	not(memberchk(H,Possible1)).
 
