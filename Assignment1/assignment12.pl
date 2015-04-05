@@ -158,12 +158,11 @@ show(Parent):-
 
 
 % add class
-% add(class, relaties, ancestors)
-go1():-
-	add(hond, [huid/haar, wervels/ja],[]).
+% add(class, relaties, ancestor)
+go1:-
+	add(hond, [huid/haar, wervels/ja],zoogdier).
 
 add(Class,[H|T],[]):-
-	assert(descendant(Ancestor,Class)),
 	bagof(Y,relatie(Y,H,_),Possible).
 
 add(Class,[H|T],Ancestor):-
@@ -171,7 +170,7 @@ add(Class,[H|T],Ancestor):-
 	bagof(Y,relatie(Y,H,_),Possible).
 
 % welke classes hebben allemaal deze relatie
-% checkAllRel(Relations,Possibleclasses,Answer)
+% checkAllRel(Relations,PossibleClasses,Answer)
 checkAllRel([],Poss,Poss).
 
 checkAllRel([H|T],Possible1,Ans):-
@@ -189,10 +188,12 @@ getList(Possible1,[H],[]):-
 	not(memberchk(H,Possible1)).
 
 % iterate through list
-getList(Possible1,[H|T],AllClasses):-
+getList(Possible1,[H|T],[H|PossibleClasses]):-
 	getList(Possible1,T,PossibleClasses),
-	memberchk(H,Possible1),
-	append(H,PossibleClasses,AllClasses);
+	memberchk(H,Possible1).
+
+% h not a member
+getList(Possible1,[H|T],AllClasses)
 	getList(Possible1,T,AllClasses),
 	not(memberchk(H,Possible1)).
 
