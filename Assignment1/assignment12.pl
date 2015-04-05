@@ -122,11 +122,12 @@ getChildren([HP|TP],AllChildren):-
 % get all relations of given class.
 % base case
 getRelations(Parent, [], Relations):-
-	bagof(Y,relatie(Y,Parent,_,_),Relations).
+	findall(Y,relatie(Parent,Y,_),Relations).
 
-getRelations(Parent,[H|T],[Rels|MoreRels]):-
-	bagof(Y,relatie(Y,Parent,_,_),Rels);
-	getRelations(H,T,MoreRels).
+getRelations(Parent,[H|T],AllRels):-
+	getRelations(H,T,MoreRels),
+	findall(Y,relatie(Parent,Y,_),Rels),
+	append(Rels,MoreRels,AllRels).
 
 show(Parent):-
 	print('Ancestors:\n'),
