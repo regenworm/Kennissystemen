@@ -1,4 +1,6 @@
 % knowledge base
+:- dynamic descendant/2.
+:- dynamic relatie/3.
 
 %%%%%%%%%%%%%%%%%% klasse dier %%%%%%%%%%%%%%%%%%
 % descendant(Parent class, Child class)
@@ -25,15 +27,49 @@ descendant(gewervelde, kraakbeenvis).
 descendant(dier, gewervelde).
 
 %%%%%%%%%%%%%%%%%% relaties %%%%%%%%%%%%%%%%%%
-% relatie(feature, class, type, valuerestriction)
+% relatie(class, feature/type, valuerestriction)
 % huid
-relatie(huid,zoogdier, haar, 1/inf).
-relatie(huid,vogel, veren, 1/inf).
-relatie(huid,reptiel, schubben, 1/inf).
-relatie(huid,amfibie,slijmlaag,1/1 ).
-relatie(huid,kraakbeenvis,huidtandjes,1/inf).
+relatie(zoogdier, huid/haar, 1/inf).
+relatie(vogel, huid/veren, 1/inf).
+relatie(reptiel, huid/schubben, 1/inf).
+relatie(amfibie, huid/slijmlaag,1/1 ).
+relatie(kraakbeenvis, huid/huidtandjes,1/inf).
 
+% ledematen
+relatie(zoogdier, ledematen/_, 2/5).
+relatie(vogel, ledematen/vleugels, 2/2).
+relatie(reptiel, ledematen/poten, 1/4).
+relatie(amfibie, ledematen/poten, 1/4).
+relatie(kraakbeenvis, ledematen/vinnen, 2/inf).
 
+% eet
+relatie(wolf, eet/carnivoor, 1/inf).
+relatie(aap, eet/omnivoor, 1/inf).
+relatie(duif, eet/herbivoor, 1/inf).
+relatie(eend, eet/omnivoor, 1/inf).
+relatie(hagedis, eet/carnivoor, 1/inf).
+relatie(leguaan, eet/carnivoor, 1/inf).
+relatie(kikker, eet/carnivoor, 1/inf).
+relatie(pad, eet/carnivoor, 1/inf).
+relatie(haai, eet/carnivoor, 1/inf).
+relatie(rog, eet/omnivoor, 1/inf).
+
+% voortplanting
+relatie(zoogdier, voortplanting/geboorte, 0/inf).
+relatie(vogel, voortplanting/ei, 0/inf).
+relatie(reptiel, voortplanting/ei, 0/inf).
+relatie(amfibie, voortplanting/larve, 0/inf).
+relatie(kraakbeenvis, voortplanting/geboorte, 0/inf).
+
+% warm of koudbloedig
+relatie(zoogdier, lichaamswarmte/warmbloedig, 1/inf).
+relatie(vogel, lichaamswarmte/warmbloedig, 1/inf).
+relatie(reptiel, lichaamswarmte/koudbloedig, 1/inf).
+relatie(amfibie, lichaamswarmte/koudbloedig, 1/inf).
+relatie(kraakbeenvis, lichaamswarmte/koudbloedig, 1/inf).
+
+% gewervelde
+relatie(gewervelde, wervels/ja, 1/inf).
 
 %%%%%%%%%%%%%%%%%% functions %%%%%%%%%%%%%%%%%%
 % print ancestors of given class
@@ -67,7 +103,7 @@ getChildren(Parent,[]):-
 % 1 parent, 1 child
 getChildren(Parent,AllChildren):-
 	bagof(Y,descendant(Parent,Y),[Child]),
-	print(Parent),
+	%print(Parent),
 	getChildren(Child,GrandChildren),
 	append(Child,GrandChildren,AllChildren).
 
@@ -85,8 +121,8 @@ getChildren([HP|TP],AllChildren):-
 
 % 1 parent, multiple children
 getChildren(Parent,AllChildren):-
-	print('multchild\n'),
-	print(Parent),
+	%print('multchild\n'),
+	%print(Parent),
 	bagof(Y,descendant(Parent,Y),[ChildH|ChildT]),
 	getChildren(ChildH,GrandHChild),
 	getChildren(ChildT,GrandTChild),
@@ -99,20 +135,68 @@ getChildren(Parent,AllChildren):-
 % get all relations of given class.
 % base case
 getRelations(Parent, [], Relations):-
-	bagof(Y,relatie(Y,Parent,_,_),Relations);
-	not(bagof(Y,relatie(Y,Parent,_,_),Relations)).
+	bagof(Y,relatie(Y,Parent,_,_),Relations).
 
-getRelations(Parent,[H|T],AllRelations):-
-	bagof(Y,relatie(Y,Parent,_,_),AllRelations);
-	getRelations(H,T,AllRelations).
+getRelations(Parent,[H|T],[Rels|MoreRels]):-
+	bagof(Y,relatie(Y,Parent,_,_),Rels);
+	getRelations(H,T,MoreRels).
 
 show(Parent):-
 	print('Ancestors:\n'),
 	getAncestors(Parent,Ancestors),
-	printDescent(Ancestors,Parent),
+	reverse(Ancestors,AncestorsR),
+	printDescent(AncestorsR,Parent),
+	getChildren(Parent,Children),
 	print('Children:\n'),
-	getChildren(Parent,_),
+	print(Children),
+	print('\n'),
 	getRelations(Parent,Ancestors,Relations),
 	print('Relations:\n'),
 	print(Relations).
+
+
+
+
+% add class
+% add(class, relaties, ancestors)
+go1():-
+	add(hond, [huid/haar, wervels/ja],[]).
+
+add(Class,[H|T],[]):-
+	assert(descendant(Ancestor,Class)),
+	bagof(Y,relatie(Y,H,_),Possible).
+
+add(Class,[H|T],Ancestor):-
+	assert(descendant(Ancestor,Class)),
+	bagof(Y,relatie(Y,H,_),Possible).
+
+% welke classes hebben allemaal deze relatie
+% checkAllRel(Relations,Possibleclasses,Answer)
+checkAllRel([],Poss,Poss).
+
+checkAllRel([H|T],Possible1,Ans):-
+	bagof(Y,relatie(Y,H,_),Possible2),
+	getList(Possible1,Possible2,ActualPossible),
+	checkAllRel(T,ActualPossible,Ans).
+
+% crossreference classes
+% last element is also in list 1
+getList(Possible1,[H],[H]):-
+	memberchk(H,Possible1).
+
+% last element is not also in list 1
+getList(Possible1,[H],[]):-
+	not(memberchk(H,Possible1)).
+
+% iterate through list
+getList(Possible1,[H|T],AllClasses):-
+	getList(Possible1,T,PossibleClasses),
+	memberchk(H,Possible1),
+	append(H,PossibleClasses,AllClasses);
+	getList(Possible1,T,AllClasses),
+	not(memberchk(H,Possible1)).
+
+
+
+
 
