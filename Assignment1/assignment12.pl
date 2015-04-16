@@ -92,7 +92,7 @@ getAncestors(Parent, [Ancestor|AncestorsT]):-
 	getAncestors(Ancestor,AncestorsT).
 
 % get all Children of given class
-% base case
+
 
 % 1 parent, 1 child
 getChildren(Parent,AllChildren):-
@@ -116,7 +116,8 @@ getChildren(Parent,AllChildren):-
 	append([ChildH],GrandHChild,Htree),
 	append(ChildT,GrandTChild,Ttree),
 	append(Htree,Ttree, AllChildren).
-	
+
+% base case
 getChildren([Parent],[]):-
 	not(descendant(Parent,_)).
 
