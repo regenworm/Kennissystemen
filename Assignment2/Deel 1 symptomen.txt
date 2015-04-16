@@ -1,0 +1,104 @@
+fysiek->
+	uiterlijke verschijnselen->
+		verkleuring->
+			vlekken->
+				-licht
+				-donker
+				door kleding bedekte huid
+			geling->
+				huid
+			-framboosachtig
+		uitsteeksels->
+			-bobbels
+			schilfering->
+				-borst
+				-schouders
+				-bovenarmen
+				-rug
+			-zweren
+			-steenpuist
+			pukkels->
+				rood
+			knobbels->
+				huid->
+					hard->
+						-erwtgroot
+						-klein
+					-zacht
+
+			muggenbeet->
+				huid
+		zwelling->
+			benen
+		uitslag->
+			-jeukende
+			eczeem->
+				-liezen
+				-oksels
+				-onder borsten
+		-schilfering
+		-algemene afwijking
+	sensatie->
+		-algemeen onwel zijn
+		-zwakjes voelen
+		-jeuk
+		pijn->
+			krampen->
+				buik
+			-hoofd
+			-buik
+			spieren->
+				-gewricht
+			-oog
+			-bij urineren
+		drukkend->
+			-buik
+		irritatie->
+			oog
+	lichaamsfunctie->
+		bloedcirculatie->
+			hart->
+				-onregelmatig kloppen
+				-afwijkingen
+		zintuigen->
+			zicht->
+				-blindheid
+				-slechtziendheid
+		verteringssysteem->
+			ontlasting->
+				-vaker dan 3 keer per dag
+				-constipatie
+				feces->
+					-diarree
+					-brijig
+					-verkleurd
+					-slijmerig
+					-waterig
+					-verkleurd
+					-meer dan 200ml/24 uur
+					voorwerpen in ontlasting->
+						-eitjes
+						-wormpjes
+			urineren->
+				-bloed in urine
+				-etterige afscheiding
+			-braken
+		-slaperig
+		-vermoeidheid
+		evenwicht->
+			-duizelig
+		ademhaling->
+			-moeilijk ademhalen
+			-hoesten
+			-verstopte neus
+		motoriek->
+			-spasmen
+		-orgaanafwijkingen
+	lichaamstemperatuur->
+		-hoger dan 38.5
+		-lager
+mentaal->
+	-veranderingen
+	-verward
+	-concentratieprobleem
+	-gebrek eetlust

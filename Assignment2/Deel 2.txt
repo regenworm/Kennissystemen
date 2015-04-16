@@ -1,0 +1,16 @@
+Vraag 2:
+
+Scenario 1:
+	Het systeem stelt vragen, patient antwoordt
+Input:
+	Het systeem vraagt of er klachten zijn, patient antwoordt ja. Systeem gaat daarna de boom af om achter de klacht (symptoom) te komen. Als de boom is afgewerkt wordt opnieuw gevraagd of er klachten zijn en zo worden alle symptomen verzameld. Hierna wordt aan de hand van een lijst met waarschijnlijke ziekten een aantal vragen gesteld om bepaalde ziekte uit te sluiten.
+Output:
+	Een lijst van ziekten die van meest waarschijnlijk naar minst waarschijnlijk zijn gesorteerd samen met de symptomen die hierbij horen. De meest waarschijnlijke ziekte is de ziekte waarvan de meeste symptomen overeenkomen en die niet uitgesloten wordt door andere symptomen of informatie.
+
+
+Scenario 2:
+	De patient neemt initiatief.
+Input:
+	De patient noemt klachten op, het systeem moet dit parsen en proberen de klachten te categoriseren. Daarna somt het systeem de symptomen op en de patient bevestigt dit. 
+Output:
+	Het systeem probeert een aantal ziekten te vinden met overeenkomende symptomen. Als deze ziekten extra symptomen hebben wordt de patient gevraagd of deze ook bij hen voor komen. Als er een ziekte is waarvan veel symptomen overeenkomen dan vraagt het systeem of de patient in een situatie is geweest waardoor de ziekte veroorzaakt zou kunnen worden (bv. gestoken door een mug of in afrika geweest). Uiteindelijk kunnen ziekten dan uitgesloten of bevestigd worden. De output is dan een ziekte die patient waarschijnlijk heeft.

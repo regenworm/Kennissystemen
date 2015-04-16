@@ -93,31 +93,35 @@ getAncestors(Parent, [Ancestor|AncestorsT]):-
 
 % get all Children of given class
 % base case
-getChildren(Parent,[]):-
-	not(is_list(Parent)),
-	not(descendant(Parent,_)).
 
-% 1 parent
+% 1 parent, 1 child
 getChildren(Parent,AllChildren):-
-	not(is_list(Parent)),
-	findall(Y,descendant(Parent,Y),Children),
-	print(Children),
-	getChildren(Children,GrandChildren),
-	append(Children,GrandChildren,AllChildren).
-
-% multiple parents
-getChildren([HP|TP],AllChildren):-
-	findall(Y,descendant(HP,Y),HChildren),
-	append(TP,HChildren,Looklist),
-	getChildren(Looklist,MoreChildren),
-	append(HChildren,MoreChildren,AllChildren).
+	bagof(Y,descendant(Parent,Y),[Child]),
+	print(Parent),
+	getChildren(Child,GrandChildren),
+	append(Child,GrandChildren,AllChildren).
 
 % multiple parents, multiple children
 % hier zit een fout
+getChildren([HP|TP],AllChildren):-
+	bagof(Y,descendant(HP,Y),[ChildH|ChildT]),
+	getChildren(TP, TPChild),
+	append([ChildH|ChildT],TPChild, AllChildren).
 
 % 1 parent, multiple children
+getChildren(Parent,AllChildren):-
+	bagof(Y,descendant(Parent,Y),[ChildH|ChildT]),
+	getChildren(ChildH,GrandHChild),
+	getChildren(ChildT,GrandTChild),
+	append([ChildH],GrandHChild,Htree),
+	append(ChildT,GrandTChild,Ttree),
+	append(Htree,Ttree, AllChildren).
+	
+getChildren([Parent],[]):-
+	not(descendant(Parent,_)).
 
-% multiple parents, 1 child
+getChildren(Parent,[]):-
+	not(descendant(Parent,_)).
 
 % get all relations of given class.
 % base case
@@ -143,17 +147,6 @@ show(Parent):-
 	print(Relations).
 
 
-% get all ancestors
-% getAllAnc(Classes,)
-getAllAnc([], []).
-getAllAnc([H|T],AllAncestors):-
-	getAllAnc(T,RestAncestors),
-	getAncestors(H,Ancestor),
-	append(Ancestor,RestAncestors,AllAncestors).
-
-
-% getAllRel(Relation,PossibleClasses,Ans)
-
 getAllRel(Relation,Family):-
 	findall(Y,relatie(Y,Relation,_),AllParents),
 	getChildren(AllParents,Children),
@@ -161,28 +154,64 @@ getAllRel(Relation,Family):-
 
 % add class
 % add(class, relaties, ancestor)
-go1:-
-	add(hond, [huid/haar, wervels/ja],zoogdier).
-
+% add without ancestor
+% als niets alle classes ook heeft waarschijnlijk subconcept
 add(Class,[H|T],[]):-
-	bagof(Y,relatie(Y,H,_),Possible).
+	getAllRel(H,PossibleClasses),
+	checkAllRel(T,PossibleClasses,[]),
+	subsumeClass(Class,[H|T],PossibleClasses).
 
-add(Class,[H|T],Ancestor):-
+% if ancestor specified
+add(Class,Relations,Ancestor):-
 	assert(descendant(Ancestor,Class)),
-	bagof(Y,relatie(Y,H,_),Possible).
+	getAncestors(Ancestor,GrandParents),
+	getRelations(Ancestor,GrandParents,AncestorRels),
+	getList(Relations,AncestorRels,Same),
+	append(Same, Difference, Relations),
+	assertRelations(Difference,Class).
 
-% welke classes hebben allemaal deze relatie
+% assert given relations
+assertRelations([],_).
+
+assertRelations([H|T],Class):-
+	assert(relatie(Class,H,_)),
+	assertRelations(T,Class).
+
+% classify given class
+% basecase subsumption
+subsumeClass(Class,Relations,Children):-
+	memberchk(Y,Children),
+	getRelations(Y,AllRelations),
+	getList(Relations,AllRelations,Difference),
+	append(AllRelations,Difference,Relations),
+	assert(descendant(Y,Class)),
+	assertRelations(Difference,Class).
+
+% check for children if fully subsumed
+subsumeClass(Class,Relations,Children):-
+	memberchk(Y,Children),
+	getRelations(Y,AllRelations),
+	getList(Relations,AllRelations,AllRelations),
+	getChildren(Y,Child),
+	subsumeClass(Class,Relations,Child).
+
+
+
+% welke classes hebben allemaal alle relations
+% kijken of nieuw superconcept
 % checkAllRel(Relations,PossibleClasses,Answer)
 checkAllRel([],Poss,Poss).
 
 checkAllRel([H|T],Possible1,Ans):-
 	% get all classes Y with feature H
-	bagof(Y,relatie(Y,H,_),Possible2),
+	getAllRel(H,Possible2),
 	getList(Possible1,Possible2,ActualPossible),
 	checkAllRel(T,ActualPossible,Ans).
 
-% crossreference classes
+
+% crossreference lists
 % last element is also in list 1
+% return same elements
 getList(Possible1,[H],[H]):-
 	memberchk(H,Possible1).
 
@@ -201,6 +230,18 @@ getList(Possible1,[H|T],AllClasses):-
 	not(memberchk(H,Possible1)).
 
 
+% classifier voorbeelden
+go1:-
+	add(hond,  [huid/haar, ledematen/poten, voortplanting/geboorte, lichaamswarmte/warmbloedig, wervels/ja, huisdier/ja],zoogdier).
 
+go2:-
+	add(kaketoe, [huid/veren, ledematen/vleugels, voortplanting/ei, lichaamswarmte/warmbloedig, wervels/ja, snavel/lang],vogel).
 
+go3:-
+	add(papegaai, [huid/veren, ledematen/vleugels, voortplanting/ei, lichaamswarmte/warmbloedig, wervels/ja, snavel/kort],vogel).
 
+go4:-
+	add(salamander, [huid/slijmlaag, ledematen/poten, voortplanting/larve, lichaamswarmte/koudbloedig, wervels/ja, staart/ja],amfibie).
+
+go5:-
+	add(pijlstaartrog, [eet/omnivoor, huid/huidtandjes, ledematen/vinnen, voortplanting/geboorte, lichaamswarmte/koudbloedig, wervels/ja, giftig/ja] ,rog).
